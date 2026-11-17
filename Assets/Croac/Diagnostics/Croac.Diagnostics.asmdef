@@ -1,0 +1,8 @@
+{
+    "name": "Croac.Diagnostics",
+    "rootNamespace": "Croac.Diagnostics",
+    "references": [
+        "Croac"
+    ],
+    "autoReferenced": true
+}

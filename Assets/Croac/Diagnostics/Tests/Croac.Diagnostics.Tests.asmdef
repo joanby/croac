@@ -1,0 +1,21 @@
+{
+    "name": "Croac.Diagnostics.Tests",
+    "rootNamespace": "Croac.Diagnostics.Tests",
+    "references": [
+        "Croac",
+        "Croac.Diagnostics",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ]
+}
