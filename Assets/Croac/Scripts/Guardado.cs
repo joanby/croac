@@ -19,8 +19,14 @@ namespace Croac
         {
             partidas++;
             moscasTotales += puntuacion.Moscas;
-            if (puntuacion.Puntos <= record) return false;
-            record = puntuacion.Puntos;
+            return ActualizarRecord(puntuacion.Puntos);
+        }
+
+        /// <summary>Sube el récord si <paramref name="puntos"/> lo supera. Devuelve <c>true</c> si lo ha cambiado.</summary>
+        public bool ActualizarRecord(int puntos)
+        {
+            if (puntos <= record) return false;
+            record = puntos;
             return true;
         }
 
@@ -30,8 +36,22 @@ namespace Croac
         public static Guardado DesdeJson(string json) =>
             string.IsNullOrEmpty(json) ? new Guardado() : JsonUtility.FromJson<Guardado>(json);
 
-        public static Guardado Cargar() => DesdeJson(File.Exists(Ruta) ? File.ReadAllText(Ruta) : null);
+        public static Guardado Cargar(string ruta) => DesdeJson(File.Exists(ruta) ? File.ReadAllText(ruta) : null);
 
-        public void Guardar() => File.WriteAllText(Ruta, AJson());
+        public static Guardado Cargar() => Cargar(Ruta);
+
+        public void Guardar(string ruta) => File.WriteAllText(ruta, AJson());
+
+        public void Guardar() => Guardar(Ruta);
+
+        /// <summary>
+        /// Guarda el récord de una partida que aún no ha terminado, sin contarla como jugada: es lo que se hace
+        /// al irse a segundo plano, por si el sistema mata la app.
+        /// </summary>
+        public static void GuardarRecord(int puntos, string ruta)
+        {
+            var guardado = Cargar(ruta);
+            if (guardado.ActualizarRecord(puntos)) guardado.Guardar(ruta);
+        }
     }
 }

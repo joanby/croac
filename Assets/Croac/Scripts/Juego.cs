@@ -8,7 +8,7 @@ namespace Croac
 {
     /// <summary>
     /// La partida: crea las filas de nenúfares, hace saltar a la rana con cada toque, cuenta los puntos
-    /// y guarda el récord al caer al agua.
+    /// y guarda el récord al caer al agua y cada vez que la app se va a segundo plano (<see cref="CicloVida"/>).
     /// </summary>
     public class Juego : MonoBehaviour, IJugador
     {
@@ -30,6 +30,7 @@ namespace Croac
 
         readonly List<Nenufar> filas = new();
         readonly Puntuacion puntuacion = new();
+        CicloVida cicloVida;
         Nivel nivel;
         GeneradorNenufares generador;
         InputAction accionSaltar;
@@ -40,18 +41,26 @@ namespace Croac
         public bool PuedeSaltar => !Terminada && !rana.EnElAire;
         public float DesvioSiguiente => Fila(filaActual + 1).transform.position.x - rana.transform.position.x;
 
+        void Awake() => cicloVida = new CicloVida(() => Guardado.GuardarRecord(puntuacion.Puntos, Guardado.Ruta));
+
         void OnEnable()
         {
             accionSaltar = InputSystem.actions.FindAction("Juego/Saltar", true);
             accionSaltar.performed += AlTocar;
             rana.Aterrizo += AlAterrizar;
+            Application.lowMemory += cicloVida.AlFaltarMemoria;
         }
 
         void OnDisable()
         {
             accionSaltar.performed -= AlTocar;
             rana.Aterrizo -= AlAterrizar;
+            Application.lowMemory -= cicloVida.AlFaltarMemoria;
         }
+
+        void OnApplicationPause(bool pausada) => cicloVida.AlPausar(pausada);
+
+        void OnApplicationFocus(bool conFoco) => cicloVida.AlCambiarFoco(conFoco);
 
         async Awaitable Start()
         {
