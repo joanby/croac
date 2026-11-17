@@ -38,6 +38,8 @@ namespace Croac
 
         public int Puntos => puntuacion.Puntos;
 
+        public int Saltos => puntuacion.Saltos;
+
         public bool Terminada { get; private set; }
         public bool PuedeSaltar => !Terminada && !rana.EnElAire;
         public float DesvioSiguiente => Fila(filaActual + 1).transform.position.x - rana.transform.position.x;
