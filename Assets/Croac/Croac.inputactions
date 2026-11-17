@@ -1,0 +1,34 @@
+{
+    "name": "Croac",
+    "maps": [
+        {
+            "name": "Juego",
+            "id": "5b1b7f4e-2d0a-4a51-9f37-1c0de0a0c001",
+            "actions": [
+                {
+                    "name": "Saltar",
+                    "type": "Button",
+                    "id": "5b1b7f4e-2d0a-4a51-9f37-1c0de0a0c002",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "5b1b7f4e-2d0a-4a51-9f37-1c0de0a0c003",
+                    "path": "<Pointer>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Saltar",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

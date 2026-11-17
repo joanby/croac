@@ -1,0 +1,12 @@
+{
+    "name": "Croac",
+    "rootNamespace": "Croac",
+    "references": [
+        "Unity.InputSystem",
+        "Unity.Addressables",
+        "Unity.ResourceManager",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "autoReferenced": true
+}

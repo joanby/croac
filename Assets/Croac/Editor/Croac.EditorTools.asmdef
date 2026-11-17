@@ -1,0 +1,11 @@
+{
+    "name": "Croac.EditorTools",
+    "rootNamespace": "Croac.EditorTools",
+    "references": [
+        "Croac"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "autoReferenced": false
+}
