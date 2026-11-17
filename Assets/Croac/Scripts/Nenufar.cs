@@ -6,6 +6,8 @@ namespace Croac
     /// <summary>Un nenúfar que va de lado a lado de la charca y puede llevar una mosca.</summary>
     public class Nenufar : MonoBehaviour
     {
+        static readonly WaitForSeconds Espera = new(0.01f);
+
         [SerializeField] GameObject mosca;
 
         float velocidad;
@@ -33,7 +35,7 @@ namespace Croac
             while (true)
             {
                 mosca.transform.localPosition = posicionMosca + (Vector3)(Random.insideUnitCircle * 0.04f);
-                yield return new WaitForSeconds(0.01f);
+                yield return Espera;
             }
         }
 

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
 namespace Croac
@@ -28,6 +29,7 @@ namespace Croac
         [SerializeField] int filasPorDetras = 2;
 
         readonly List<Nenufar> filas = new();
+        ObjectPool<Nenufar> charca;
         readonly Puntuacion puntuacion = new();
         CicloVida cicloVida;
         Nivel nivel;
@@ -40,11 +42,28 @@ namespace Croac
 
         public int Saltos => puntuacion.Saltos;
 
+        /// <summary>Moscas en los nenúfares que están por debajo de <paramref name="arriba"/>, sin asignar memoria.</summary>
+        public int MoscasPorDebajoDe(float arriba)
+        {
+            int moscas = 0;
+            foreach (var nenufar in filas)
+                if (nenufar.TieneMosca && nenufar.transform.position.y < arriba) moscas++;
+            return moscas;
+        }
+
         public bool Terminada { get; private set; }
         public bool PuedeSaltar => !Terminada && !rana.EnElAire;
         public float DesvioSiguiente => Fila(filaActual + 1).transform.position.x - rana.transform.position.x;
 
-        void Awake() => cicloVida = new CicloVida(() => Guardado.GuardarRecord(puntuacion.Puntos, Guardado.Ruta));
+        void Awake()
+        {
+            cicloVida = new CicloVida(() => Guardado.GuardarRecord(puntuacion.Puntos, Guardado.Ruta));
+            charca = new ObjectPool<Nenufar>(
+                () => Instantiate(prefabNenufar, transform),
+                nenufar => nenufar.gameObject.SetActive(true),
+                nenufar => nenufar.gameObject.SetActive(false),
+                defaultCapacity: filasPorDelante + filasPorDetras + 2);
+        }
 
         void OnEnable()
         {
@@ -135,7 +154,7 @@ namespace Croac
             while (primeraFila + filas.Count <= filaActual + filasPorDelante) CrearFila(generador.Siguiente());
             while (filaActual - primeraFila > filasPorDetras)
             {
-                Destroy(filas[0].gameObject);
+                charca.Release(filas[0]);
                 filas.RemoveAt(0);
                 primeraFila++;
             }
@@ -144,8 +163,8 @@ namespace Croac
         void CrearFila(Fila fila)
         {
             int indice = primeraFila + filas.Count;
-            var nenufar = Instantiate(prefabNenufar, new Vector3(fila.X, Altura(indice), 0f), Quaternion.identity, transform);
-            nenufar.name = $"Nenufar {indice}";
+            var nenufar = charca.Get();
+            nenufar.transform.position = new Vector3(fila.X, Altura(indice), 0f);
             nenufar.Configurar(fila, nivel.limite);
             filas.Add(nenufar);
         }

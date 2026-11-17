@@ -1,10 +1,12 @@
-using System.Linq;
 using TMPro;
 using UnityEngine;
 
 namespace Croac
 {
-    /// <summary>Los marcadores de la partida: puntos, saltos y récord, moscas a la vista y tiempo.</summary>
+    /// <summary>
+    /// Los marcadores de la partida: puntos, saltos y récord, moscas a la vista y tiempo. Cada texto se reescribe
+    /// solo cuando cambia lo que muestra, y con <c>SetText</c> y un formato, que no crea cadenas nuevas.
+    /// </summary>
     public class Marcador : MonoBehaviour
     {
         [SerializeField] Juego juego;
@@ -14,6 +16,10 @@ namespace Croac
 
         Camera camara;
         int record;
+        int puntos = -1;
+        int saltos = -1;
+        int moscas = -1;
+        int segundos = -1;
 
         void Start()
         {
@@ -23,11 +29,24 @@ namespace Croac
 
         void Update()
         {
-            texto.SetText("Puntos <b>" + juego.Puntos + "</b> · saltos " + juego.Saltos + " · récord " + record);
-            float arriba = camara.transform.position.y + camara.orthographicSize;
-            var aLaVista = FindObjectsByType<Nenufar>().Where(n => n.TieneMosca && n.transform.position.y < arriba).ToList();
-            textoMoscas.SetText("Moscas <b>" + aLaVista.Count + "</b>");
-            textoTiempo.SetText("<b>" + Time.timeSinceLevelLoad.ToString("0.00") + "</b> s");
+            if (juego.Puntos != puntos || juego.Saltos != saltos)
+            {
+                puntos = juego.Puntos;
+                saltos = juego.Saltos;
+                texto.SetText("Puntos <b>{0}</b> · saltos {1} · récord {2}", puntos, saltos, record);
+            }
+            int aLaVista = juego.MoscasPorDebajoDe(camara.transform.position.y + camara.orthographicSize);
+            if (aLaVista != moscas)
+            {
+                moscas = aLaVista;
+                textoMoscas.SetText("Moscas <b>{0}</b>", moscas);
+            }
+            int ahora = (int)Time.timeSinceLevelLoad;
+            if (ahora != segundos)
+            {
+                segundos = ahora;
+                textoTiempo.SetText("<b>{0}</b> s", segundos);
+            }
         }
     }
 }
