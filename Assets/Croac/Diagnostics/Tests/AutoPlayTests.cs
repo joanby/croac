@@ -49,7 +49,7 @@ namespace Croac.Diagnostics.Tests
         }
 
         [Test]
-        public void PideOtroNivelCadaTresSaltos()
+        public void PideOtroNivelCadaSaltosPorNivel()
         {
             var acciones = Jugar(7, 3000);
             int saltos = 0;

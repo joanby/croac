@@ -50,7 +50,7 @@ namespace Croac.Diagnostics
             return AccionBot.Saltar;
         }
 
-        float SortearUmbral() => 0.1f + 0.25f * (float)azar.NextDouble();
+        float SortearUmbral() => 0.2f + 0.3f * (float)azar.NextDouble();
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ namespace Croac.Diagnostics
     /// </summary>
     public class AutoPlay : MonoBehaviour
     {
-        public const int SaltosPorNivel = 3;
+        public const int SaltosPorNivel = 2;
 
         Bot bot;
         string escena;
