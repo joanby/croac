@@ -62,7 +62,7 @@ namespace Croac
                 () => Instantiate(prefabNenufar, transform),
                 nenufar => nenufar.gameObject.SetActive(true),
                 nenufar => nenufar.gameObject.SetActive(false),
-                defaultCapacity: filasPorDelante + filasPorDetras + 2);
+                defaultCapacity: filasPorDetras + 1 + filasPorDelante);
         }
 
         void OnEnable()
@@ -88,6 +88,7 @@ namespace Croac
         {
             nivel = Seleccion.Nivel != null ? Seleccion.Nivel : nivelPorDefecto;
             generador = new GeneradorNenufares(nivel);
+            LlenarCharca();
             CrearFila(new Fila(0f, 0f, false));
             RellenarFilas();
             rana.transform.position = Fila(0).transform.position;
@@ -149,22 +150,37 @@ namespace Croac
             panelFin.SetActive(true);
         }
 
+        /// <summary>
+        /// Crea al cargar el nivel todos los nenúfares que puede haber a la vez (las filas de detrás, la de la rana y
+        /// las de delante) y los deja en el pool: así ningún salto tiene que instanciar uno.
+        /// </summary>
+        void LlenarCharca()
+        {
+            var reserva = new Nenufar[filasPorDetras + 1 + filasPorDelante];
+            for (int i = 0; i < reserva.Length; i++) reserva[i] = charca.Get();
+            foreach (var nenufar in reserva) charca.Release(nenufar);
+        }
+
+        /// <summary>
+        /// Devuelve al pool las filas que quedan atrás y luego crea las de delante: en ese orden, cada fila nueva
+        /// reutiliza la que se acaba de soltar y el pool no tiene que instanciar otra.
+        /// </summary>
         void RellenarFilas()
         {
-            while (primeraFila + filas.Count <= filaActual + filasPorDelante) CrearFila(generador.Siguiente());
             while (filaActual - primeraFila > filasPorDetras)
             {
                 charca.Release(filas[0]);
                 filas.RemoveAt(0);
                 primeraFila++;
             }
+            while (primeraFila + filas.Count <= filaActual + filasPorDelante) CrearFila(generador.Siguiente());
         }
 
         void CrearFila(Fila fila)
         {
             int indice = primeraFila + filas.Count;
             var nenufar = charca.Get();
-            nenufar.transform.position = new Vector3(fila.X, Altura(indice), 0f);
+            nenufar.Colocar(new Vector3(fila.X, Altura(indice), 0f));
             nenufar.Configurar(fila, nivel.limite);
             filas.Add(nenufar);
         }

@@ -13,6 +13,7 @@ namespace Croac
         float limite;
         Vector3 posicionMosca;
         float hastaZumbido;
+        Transform propio;
 
         public bool TieneMosca => mosca.activeSelf;
 
@@ -25,7 +26,17 @@ namespace Croac
 
         public void ComerMosca() => mosca.SetActive(false);
 
-        void Awake() => posicionMosca = mosca.transform.localPosition;
+        void Awake()
+        {
+            propio = transform;
+            posicionMosca = mosca.transform.localPosition;
+        }
+
+        /// <summary>
+        /// Lo coloca en la charca. Usa el Transform guardado en <c>Awake</c>: el primer acceso a <c>transform</c> crea
+        /// su objeto de C# y asigna memoria, y así eso pasa al llenar el pool, no en un salto.
+        /// </summary>
+        public void Colocar(Vector3 posicion) => propio.position = posicion;
 
         void Update()
         {
