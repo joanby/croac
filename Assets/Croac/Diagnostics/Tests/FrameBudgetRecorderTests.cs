@@ -24,7 +24,7 @@ namespace Croac.Diagnostics.Tests
         public void ElCsvTieneLaCabeceraYUnaFilaPorFrameConPuntoDecimal()
         {
             var bufer = new BuferPresupuesto(2);
-            bufer.Anotar(new MuestraFrame { frame = 10, cpuMainMs = 16.5f, gcAllocBytes = 2048, batches = 12, totalUsedMb = 300.25f, nivel = 1 });
+            bufer.Anotar(new MuestraFrame { frame = 10, cpuMainMs = 16.5f, gcAllocBytes = 2048, drawCalls = 12, totalUsedMb = 300.25f, nivel = 1 });
             bufer.Anotar(new MuestraFrame { frame = 11, cpuMainMs = 8.25f, canvasRebuilds = 1, nivel = 2 });
             bufer.Anotar(new MuestraFrame { frame = 12 });
             var salida = new StringWriter();
@@ -34,9 +34,9 @@ namespace Croac.Diagnostics.Tests
             var lineas = salida.ToString().TrimEnd().Split('\n');
             Assert.AreEqual(3, lineas.Length, "cabecera y dos filas: la tercera no cabe");
             Assert.AreEqual(BuferPresupuesto.Cabecera, lineas[0].TrimEnd('\r'));
-            Assert.AreEqual("10,16.5,0,0,2048,0,12,0,0,0,0,0,0,300.25,1", lineas[1].TrimEnd('\r'));
-            Assert.AreEqual("11,8.25,0,0,0,0,0,0,0,0,0,1,0,0,2", lineas[2].TrimEnd('\r'));
-            Assert.AreEqual(15, lineas[0].Split(',').Length);
+            Assert.AreEqual("10,16.5,0,0,2048,0,0,12,0,0,0,0,300.25,1", lineas[1].TrimEnd('\r'));
+            Assert.AreEqual("11,8.25,0,0,0,0,0,0,0,0,1,0,0,2", lineas[2].TrimEnd('\r'));
+            Assert.AreEqual(14, lineas[0].Split(',').Length);
         }
 
         [Test]

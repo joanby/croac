@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Unity.Profiling;
+using Unity.Profiling.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,7 +18,6 @@ namespace Croac.Diagnostics
         public float gpuMs;
         public long gcAllocBytes;
         public long gcAllocCount;
-        public long batches;
         public long setPassCalls;
         public long drawCalls;
         public float uiLayoutMs;
@@ -35,7 +36,7 @@ namespace Croac.Diagnostics
     public class BuferPresupuesto
     {
         public const string Cabecera =
-            "frame,cpu_main_ms,cpu_render_ms,gpu_ms,gc_alloc_bytes,gc_alloc_count,batches,setpass_calls,draw_calls," +
+            "frame,cpu_main_ms,cpu_render_ms,gpu_ms,gc_alloc_bytes,gc_alloc_count,setpass_calls,draw_calls," +
             "ui_layout_ms,ui_render_ms,canvas_rebuilds,texture_mb,total_used_mb,nivel";
 
         readonly MuestraFrame[] muestras;
@@ -64,7 +65,7 @@ namespace Croac.Diagnostics
                 salida.WriteLine(string.Join(",",
                     m.frame.ToString(c), m.cpuMainMs.ToString("0.###", c), m.cpuRenderMs.ToString("0.###", c),
                     m.gpuMs.ToString("0.###", c), m.gcAllocBytes.ToString(c), m.gcAllocCount.ToString(c),
-                    m.batches.ToString(c), m.setPassCalls.ToString(c), m.drawCalls.ToString(c),
+                    m.setPassCalls.ToString(c), m.drawCalls.ToString(c),
                     m.uiLayoutMs.ToString("0.###", c), m.uiRenderMs.ToString("0.###", c), m.canvasRebuilds.ToString(c),
                     m.textureMb.ToString("0.##", c), m.totalUsedMb.ToString("0.##", c), m.nivel.ToString(c)));
             }
@@ -74,27 +75,30 @@ namespace Croac.Diagnostics
     /// <summary>
     /// Los <see cref="ProfilerRecorder"/> de cada columna. Leerlos no asigna memoria: son structs que guardan el
     /// valor del último frame terminado. Nombres y categorías comprobados en el player de 6000.6.8f1: los tiempos
-    /// de CPU y GPU son los del FrameTimingManager (Render), las asignaciones y la memoria los de Memory, los
-    /// lotes los de Render, y la UI los marcadores <c>Layout</c> (UI Layout), <c>Render</c> y
+    /// de CPU y GPU son los del FrameTimingManager (Render), las asignaciones y la memoria los de Memory, las
+    /// llamadas de dibujo y los SetPass los de Render, y la UI los marcadores <c>Layout</c> (UI Layout), <c>Render</c> y
     /// <c>Canvas.BuildBatch</c> (UI Render). <c>canvas_rebuilds</c> es cuántas veces se rehízo el lote de un
-    /// Canvas en el frame.
+    /// Canvas en el frame. No hay columna <c>batches</c>: 6000.6 ya no tiene el contador «Batches Count» de Render
+    /// (en Statistics se llama Draw Calls) y el único con ese nombre es el de UI Toolkit, que aquí siempre vale 0.
     /// </summary>
     public class ContadoresFrame : IDisposable
     {
         const float Mb = 1024f * 1024f;
         const float NsPorMs = 1e6f;
 
-        ProfilerRecorder cpuMain, cpuRender, gpu, gcBytes, gcCount, batches, setPass, drawCalls;
+        ProfilerRecorder cpuMain, cpuRender, gpu, gcBytes, gcCount, setPass, drawCalls;
         ProfilerRecorder uiLayout, uiRender, canvasRebuilds, texturas, memoriaTotal;
+
+        readonly List<ProfilerRecorderHandle> disponibles = new();
 
         public ContadoresFrame()
         {
+            ProfilerRecorderHandle.GetAvailable(disponibles);
             cpuMain = Iniciar(ProfilerCategory.Render, "CPU Main Thread Frame Time");
             cpuRender = Iniciar(ProfilerCategory.Render, "CPU Render Thread Frame Time");
             gpu = Iniciar(ProfilerCategory.Render, "GPU Frame Time");
             gcBytes = Iniciar(ProfilerCategory.Memory, "GC Allocated In Frame");
             gcCount = Iniciar(ProfilerCategory.Memory, "GC Allocation In Frame Count");
-            batches = Iniciar(ProfilerCategory.Render, "Batches Count");
             setPass = Iniciar(ProfilerCategory.Render, "SetPass Calls Count");
             drawCalls = Iniciar(ProfilerCategory.Render, "Draw Calls Count");
             uiLayout = Iniciar(new ProfilerCategory("UI Layout"), "Layout");
@@ -104,11 +108,20 @@ namespace Croac.Diagnostics
             memoriaTotal = Iniciar(ProfilerCategory.Memory, "Total Used Memory");
         }
 
-        static ProfilerRecorder Iniciar(ProfilerCategory categoria, string nombre)
+        /// <summary>
+        /// Empieza a grabar un contador o marcador. Comprueba antes que existe en esa categoría: si no, ProfilerRecorder
+        /// se engancha a otro con el mismo nombre y la columna mediría otra cosa.
+        /// </summary>
+        ProfilerRecorder Iniciar(ProfilerCategory categoria, string nombre)
         {
-            var grabador = ProfilerRecorder.StartNew(categoria, nombre);
-            if (!grabador.Valid) Debug.LogWarning($"FrameBudgetRecorder: '{nombre}' ({categoria.Name}) no existe en esta versión o plataforma");
-            return grabador;
+            bool existe = false;
+            foreach (var handle in disponibles)
+            {
+                var descripcion = ProfilerRecorderHandle.GetDescription(handle);
+                existe |= descripcion.Name == nombre && descripcion.Category.Name == categoria.Name;
+            }
+            if (!existe) Debug.LogWarning($"FrameBudgetRecorder: '{nombre}' ({categoria.Name}) no existe en esta versión o plataforma");
+            return ProfilerRecorder.StartNew(categoria, nombre);
         }
 
         /// <summary>Las cifras del último frame terminado.</summary>
@@ -120,7 +133,6 @@ namespace Croac.Diagnostics
             gpuMs = (float)(gpu.LastValueAsDouble / NsPorMs),
             gcAllocBytes = gcBytes.LastValue,
             gcAllocCount = gcCount.LastValue,
-            batches = batches.LastValue,
             setPassCalls = setPass.LastValue,
             drawCalls = drawCalls.LastValue,
             uiLayoutMs = uiLayout.LastValue / NsPorMs,
@@ -134,7 +146,7 @@ namespace Croac.Diagnostics
         public void Dispose()
         {
             cpuMain.Dispose(); cpuRender.Dispose(); gpu.Dispose(); gcBytes.Dispose(); gcCount.Dispose();
-            batches.Dispose(); setPass.Dispose(); drawCalls.Dispose(); uiLayout.Dispose(); uiRender.Dispose();
+            setPass.Dispose(); drawCalls.Dispose(); uiLayout.Dispose(); uiRender.Dispose();
             canvasRebuilds.Dispose(); texturas.Dispose(); memoriaTotal.Dispose();
         }
     }
