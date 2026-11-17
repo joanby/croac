@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 namespace Croac
@@ -6,13 +5,14 @@ namespace Croac
     /// <summary>Un nenúfar que va de lado a lado de la charca y puede llevar una mosca.</summary>
     public class Nenufar : MonoBehaviour
     {
-        static readonly WaitForSeconds Espera = new(0.01f);
+        const float PeriodoZumbido = 0.01f;
 
         [SerializeField] GameObject mosca;
 
         float velocidad;
         float limite;
         Vector3 posicionMosca;
+        float hastaZumbido;
 
         public bool TieneMosca => mosca.activeSelf;
 
@@ -27,20 +27,9 @@ namespace Croac
 
         void Awake() => posicionMosca = mosca.transform.localPosition;
 
-        void OnEnable() => StartCoroutine(Zumbar());
-
-        /// <summary>La mosca tiembla sobre el nenúfar.</summary>
-        IEnumerator Zumbar()
-        {
-            while (true)
-            {
-                mosca.transform.localPosition = posicionMosca + (Vector3)(Random.insideUnitCircle * 0.04f);
-                yield return Espera;
-            }
-        }
-
         void Update()
         {
+            Zumbar();
             var posicion = transform.position;
             posicion.x += velocidad * Time.deltaTime;
             if (Mathf.Abs(posicion.x) > limite)
@@ -49,6 +38,18 @@ namespace Croac
                 velocidad = -velocidad;
             }
             transform.position = posicion;
+        }
+
+        /// <summary>
+        /// La mosca tiembla sobre el nenúfar. Es un temporizador y no una corrutina: el nenúfar sale de un pool y una
+        /// corrutina habría que arrancarla en cada <c>OnEnable</c>, y <c>StartCoroutine</c> asigna memoria.
+        /// </summary>
+        void Zumbar()
+        {
+            hastaZumbido -= Time.deltaTime;
+            if (hastaZumbido > 0f) return;
+            hastaZumbido = PeriodoZumbido;
+            mosca.transform.localPosition = posicionMosca + (Vector3)(Random.insideUnitCircle * 0.04f);
         }
     }
 }

@@ -1,5 +1,7 @@
+using System;
 using System.IO;
 using NUnit.Framework;
+using Unity.Profiling;
 using UnityEngine.TestTools.Constraints;
 using Is = UnityEngine.TestTools.Constraints.Is;
 
@@ -37,6 +39,15 @@ namespace Croac.Diagnostics.Tests
             Assert.AreEqual("10,16.5,0,0,2048,0,0,12,0,0,0,0,300.25,1", lineas[1].TrimEnd('\r'));
             Assert.AreEqual("11,8.25,0,0,0,0,0,0,0,0,1,0,0,2", lineas[2].TrimEnd('\r'));
             Assert.AreEqual(14, lineas[0].Split(',').Length);
+        }
+
+        [Test]
+        public void UnContadorQueNoExisteEnSuCategoriaLanzaExcepcion()
+        {
+            Assert.Throws<InvalidOperationException>(() => ContadoresFrame.Exigir(ProfilerCategory.Render, "Batches Count"),
+                "6000.6 solo tiene «Batches Count» en UI Toolkit");
+            Assert.Throws<InvalidOperationException>(() => ContadoresFrame.Exigir(ProfilerCategory.Memory, "Contador inventado"));
+            Assert.DoesNotThrow(() => ContadoresFrame.Exigir(ProfilerCategory.Render, "Draw Calls Count"));
         }
 
         [Test]

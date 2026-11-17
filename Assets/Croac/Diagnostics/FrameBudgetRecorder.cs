@@ -89,11 +89,11 @@ namespace Croac.Diagnostics
         ProfilerRecorder cpuMain, cpuRender, gpu, gcBytes, gcCount, setPass, drawCalls;
         ProfilerRecorder uiLayout, uiRender, canvasRebuilds, texturas, memoriaTotal;
 
-        readonly List<ProfilerRecorderHandle> disponibles = new();
+        static List<ProfilerRecorderHandle> disponibles;
 
+        /// <summary>Lanza <see cref="InvalidOperationException"/> si falta alguno de los contadores.</summary>
         public ContadoresFrame()
         {
-            ProfilerRecorderHandle.GetAvailable(disponibles);
             cpuMain = Iniciar(ProfilerCategory.Render, "CPU Main Thread Frame Time");
             cpuRender = Iniciar(ProfilerCategory.Render, "CPU Render Thread Frame Time");
             gpu = Iniciar(ProfilerCategory.Render, "GPU Frame Time");
@@ -108,20 +108,30 @@ namespace Croac.Diagnostics
             memoriaTotal = Iniciar(ProfilerCategory.Memory, "Total Used Memory");
         }
 
-        /// <summary>
-        /// Empieza a grabar un contador o marcador. Comprueba antes que existe en esa categoría: si no, ProfilerRecorder
-        /// se engancha a otro con el mismo nombre y la columna mediría otra cosa.
-        /// </summary>
-        ProfilerRecorder Iniciar(ProfilerCategory categoria, string nombre)
+        static ProfilerRecorder Iniciar(ProfilerCategory categoria, string nombre)
         {
-            bool existe = false;
+            Exigir(categoria, nombre);
+            return ProfilerRecorder.StartNew(categoria, nombre);
+        }
+
+        /// <summary>
+        /// Comprueba que el contador o marcador existe en esa categoría y, si no, lanza
+        /// <see cref="InvalidOperationException"/>. Sin esta comprobación, ProfilerRecorder se engancha a otro con el
+        /// mismo nombre (o a ninguno) y la columna sale a 0 sin avisar.
+        /// </summary>
+        public static void Exigir(ProfilerCategory categoria, string nombre)
+        {
+            if (disponibles == null)
+            {
+                disponibles = new List<ProfilerRecorderHandle>();
+                ProfilerRecorderHandle.GetAvailable(disponibles);
+            }
             foreach (var handle in disponibles)
             {
                 var descripcion = ProfilerRecorderHandle.GetDescription(handle);
-                existe |= descripcion.Name == nombre && descripcion.Category.Name == categoria.Name;
+                if (descripcion.Name == nombre && descripcion.Category.Name == categoria.Name) return;
             }
-            if (!existe) Debug.LogWarning($"FrameBudgetRecorder: '{nombre}' ({categoria.Name}) no existe en esta versión o plataforma");
-            return ProfilerRecorder.StartNew(categoria, nombre);
+            throw new InvalidOperationException($"el contador '{nombre}' ({categoria.Name}) no existe en esta versión o plataforma");
         }
 
         /// <summary>Las cifras del último frame terminado.</summary>
@@ -162,7 +172,8 @@ namespace Croac.Diagnostics
     /// </list>
     /// Cada fila es un frame: <c>frame</c> es el frame terminado que se ha leído, y <c>nivel</c> cuenta las veces
     /// que se ha cargado una escena de juego (una con un <see cref="IJugador"/>; 1 es la primera). Al llenar el
-    /// búfer escribe el CSV y cierra el juego.
+    /// búfer escribe el CSV y cierra el juego. Si falta algún contador, el CSV tiene una sola línea que empieza por
+    /// <c>ERROR</c> y el juego se cierra con código 1: una columna a 0 sin avisar es peor que no medir.
     /// </summary>
     public class FrameBudgetRecorder : MonoBehaviour
     {
@@ -199,19 +210,26 @@ namespace Croac.Diagnostics
             calentamiento = warmup;
             bufer = new BuferPresupuesto(frames);
             Application.runInBackground = true;
+            try
+            {
+                contadores = new ContadoresFrame();
+            }
+            catch (InvalidOperationException error)
+            {
+                File.WriteAllText(ruta, $"ERROR {error.Message}\n");
+                Debug.LogError($"FrameBudgetRecorder: {error.Message}");
+                enabled = false;
+                Application.Quit(1);
+                return;
+            }
+            SceneManager.sceneLoaded += AlCargarEscena;
             Debug.Log($"FrameBudgetRecorder: {frames} frames tras {warmup} de calentamiento → {ruta}");
         }
 
-        void OnEnable()
-        {
-            contadores = new ContadoresFrame();
-            SceneManager.sceneLoaded += AlCargarEscena;
-        }
-
-        void OnDisable()
+        void OnDestroy()
         {
             SceneManager.sceneLoaded -= AlCargarEscena;
-            contadores.Dispose();
+            contadores?.Dispose();
         }
 
         void AlCargarEscena(Scene escena, LoadSceneMode _)
