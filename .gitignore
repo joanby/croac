@@ -47,6 +47,6 @@ Builds/
 /.utmp/
 /Assets/AddressableAssetsData/Android.meta
 /Assets/AddressableAssetsData/iOS.meta
-/Assets/AddressableAssetsData/StandaloneOSX.meta
+/Assets/AddressableAssetsData/OSX.meta
 /Assets/AddressableAssetsData/link.xml
 /Assets/AddressableAssetsData/link.xml.meta
