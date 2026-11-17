@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Croac
@@ -9,6 +10,7 @@ namespace Croac
 
         float velocidad;
         float limite;
+        Vector3 posicionMosca;
 
         public bool TieneMosca => mosca.activeSelf;
 
@@ -20,6 +22,20 @@ namespace Croac
         }
 
         public void ComerMosca() => mosca.SetActive(false);
+
+        void Awake() => posicionMosca = mosca.transform.localPosition;
+
+        void OnEnable() => StartCoroutine(Zumbar());
+
+        /// <summary>La mosca tiembla sobre el nenúfar.</summary>
+        IEnumerator Zumbar()
+        {
+            while (true)
+            {
+                mosca.transform.localPosition = posicionMosca + (Vector3)(Random.insideUnitCircle * 0.04f);
+                yield return new WaitForSeconds(0.05f);
+            }
+        }
 
         void Update()
         {

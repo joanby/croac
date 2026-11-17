@@ -8,6 +8,7 @@
 
 Es determinista: dos ejecuciones dan los mismos PNG. Los PNG se versionan.
 """
+import math
 import random
 from pathlib import Path
 
@@ -68,7 +69,7 @@ def nenufar():
     for angulo in range(0, 360, 45):
         d.pieslice(caja(40, 40, 216, 216), start=angulo, end=angulo + 2, fill=VERDE_OSCURO)
     d.ellipse(caja(116, 116, 140, 140), fill=LIMA)
-    guardar(img, "nenufar.png", 256, 256)
+    guardar(img, "nenufar.png", 1024, 1024)
 
 
 def mosca():
@@ -83,7 +84,7 @@ def mosca():
 
 
 def fondo(nombre: str, agua: str, reflejo: str):
-    """Fondo vertical de 1080x1920: franjas de agua y ondas."""
+    """Fondo vertical: se dibuja en 1080x1920 y se guarda en 2304x4096, como lo entrega el equipo de arte."""
     ancho, alto = 1080, 1920
     img, d = lienzo(ancho, alto, agua)
     for i in range(0, alto, 240):
@@ -93,7 +94,35 @@ def fondo(nombre: str, agua: str, reflejo: str):
         x, y = azar.randrange(ancho), azar.randrange(alto)
         d.arc(caja(x - 90, y - 24, x + 90, y + 24), start=200, end=340, fill=reflejo, width=6 * ESCALA)
         d.arc(caja(x - 50, y - 10, x + 50, y + 14), start=200, end=340, fill=reflejo, width=4 * ESCALA)
-    guardar(img, nombre, ancho, alto)
+    guardar(img, nombre, 2304, 4096)
+
+
+def junco():
+    img, d = lienzo(256, 256)
+    d.rounded_rectangle(caja(112, 40, 144, 256), radius=16 * ESCALA, fill=VERDE)
+    d.ellipse(caja(100, 8, 156, 120), fill="#78350f")
+    d.polygon([v * ESCALA for v in (128, 150, 40, 60, 60, 52, 136, 130)], fill=VERDE_OSCURO)
+    guardar(img, "junco.png", 256, 256)
+
+
+def hoja():
+    img, d = lienzo(256, 256)
+    d.ellipse(caja(20, 70, 236, 186), fill=LIMA)
+    d.line(caja(30, 128, 226, 128), fill=VERDE, width=8 * ESCALA)
+    for x in (80, 128, 176):
+        d.line(caja(x, 128, x + 30, 90), fill=VERDE, width=5 * ESCALA)
+        d.line(caja(x, 128, x + 30, 166), fill=VERDE, width=5 * ESCALA)
+    guardar(img, "hoja.png", 256, 256)
+
+
+def flor():
+    img, d = lienzo(256, 256)
+    for angulo in range(0, 360, 60):
+        x = 128 + 62 * math.cos(math.radians(angulo))
+        y = 128 + 62 * math.sin(math.radians(angulo))
+        d.ellipse(caja(x - 44, y - 44, x + 44, y + 44), fill="#fbcfe8")
+    d.ellipse(caja(92, 92, 164, 164), fill="#facc15")
+    guardar(img, "flor.png", 256, 256)
 
 
 if __name__ == "__main__":
@@ -103,4 +132,9 @@ if __name__ == "__main__":
     mosca()
     fondo("fondo-charca.png", AGUA, CIAN + "90")
     fondo("fondo-remanso.png", AGUA_NOCHE, LIMA + "80")
+    fondo("fondo-juncal.png", "#123524", LIMA + "70")
+    fondo("fondo-cascada.png", "#0c2f4a", BLANCO + "80")
+    junco()
+    hoja()
+    flor()
     print("\n".join(sorted(p.name for p in SALIDA.glob("*.png"))))

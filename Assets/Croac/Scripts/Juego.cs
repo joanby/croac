@@ -16,8 +16,7 @@ namespace Croac
         [SerializeField] Nenufar prefabNenufar;
         [SerializeField] Rana rana;
         [SerializeField] Camera camara;
-        [SerializeField] SpriteRenderer fondo;
-        [SerializeField] Marcador marcador;
+        [SerializeField] LevelLoader cargador;
         [SerializeField] GameObject panelFin;
         [SerializeField] TMP_Text textoFin;
         [SerializeField] AudioSource altavoz;
@@ -36,6 +35,8 @@ namespace Croac
         InputAction accionSaltar;
         int primeraFila;
         int filaActual;
+
+        public int Puntos => puntuacion.Puntos;
 
         public bool Terminada { get; private set; }
         public bool PuedeSaltar => !Terminada && !rana.EnElAire;
@@ -70,13 +71,7 @@ namespace Croac
             RellenarFilas();
             rana.transform.position = Fila(0).transform.position;
             rana.transform.SetParent(Fila(0).transform, true);
-            marcador.Mostrar(0);
-            fondo.sprite = await nivel.fondo.LoadAssetAsync<Sprite>();
-        }
-
-        void OnDestroy()
-        {
-            if (nivel != null) nivel.fondo.ReleaseAsset();
+            await cargador.Cargar(nivel);
         }
 
         void LateUpdate()
@@ -119,7 +114,6 @@ namespace Croac
                 puntuacion.Mosca();
                 altavoz.PlayOneShot(sonidoMosca);
             }
-            marcador.Mostrar(puntuacion.Puntos);
             RellenarFilas();
         }
 
