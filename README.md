@@ -10,7 +10,9 @@ Arcade de una mano para móvil, en vertical: una rana salta de nenúfar en nenú
 
 ## Ajustes de partida
 
-Vertical, URP con Renderer 2D, solo Input System, Play Mode sin recarga de dominio, IL2CPP y ARM64. Android pide como mínimo la API 26 y apunta a la API 36, la que Google Play exige a las apps nuevas y a las actualizaciones desde el 31 de agosto de 2026 ([requisito de API objetivo de Google Play](https://developer.android.com/google/play/requirements/target-sdk)). iOS 15 como mínimo. Bundle id `com.frogames.croac`.
+Vertical, URP con Renderer 2D, solo Input System y Play Mode sin recarga de dominio. Desde `m01-finished`, Android compila con IL2CPP para ARM64, pide como mínimo la API 26 y apunta a la API 36, la que Google Play exige a las apps nuevas y a las actualizaciones desde el 31 de agosto de 2026 ([requisito de API objetivo de Google Play](https://developer.android.com/google/play/requirements/target-sdk)). iOS 15 como mínimo. Bundle id `com.frogames.croac`.
+
+`m01-start` parte a propósito con Mono, ARMv7 y la API objetivo automática, y sin Build Profiles: lo arregla la lección 01.4. El fichero `.croac-ajustes` de cada rama dice qué ajustes trae distintos de los de arriba.
 
 ## Ramas
 
