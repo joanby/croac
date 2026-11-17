@@ -8,6 +8,10 @@ Arcade de una mano para móvil, en vertical: una rana salta de nenúfar en nenú
 2. Clona el repo y cambia a la rama del módulo que vas a seguir (`git switch m01-start`).
 3. Abre la carpeta del proyecto desde Unity Hub y luego la escena `Assets/Croac/Scenes/Menu.unity`.
 
+## Ajustes de partida
+
+Vertical, URP con Renderer 2D, solo Input System, Play Mode sin recarga de dominio, IL2CPP y ARM64. Android pide como mínimo la API 26 y apunta a la API 36, la que Google Play exige a las apps nuevas y a las actualizaciones desde el 31 de agosto de 2026 ([requisito de API objetivo de Google Play](https://developer.android.com/google/play/requirements/target-sdk)). iOS 15 como mínimo. Bundle id `com.frogames.croac`.
+
 ## Ramas
 
 Cada módulo tiene una rama de partida y otra de solución:

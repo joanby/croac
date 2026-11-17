@@ -17,7 +17,8 @@ namespace Croac.EditorTools
     /// <item><c>-croacInforme</c>: escribe <c>packed-assets.csv</c> (asset,tipo,formato,bytes) a partir del BuildReport.</item>
     /// </list>
     /// La firma de Android sale de las variables de entorno <c>CROAC_KEYSTORE</c>, <c>CROAC_KEYSTORE_PASS</c>,
-    /// <c>CROAC_KEY_ALIAS</c> y <c>CROAC_KEY_PASS</c>; sin ellas, se firma con la clave de depuración.
+    /// <c>CROAC_KEY_ALIAS</c> y <c>CROAC_KEY_PASS</c>; sin ellas, un APK se firma con la clave de depuración
+    /// y un AAB falla.
     /// Si la build falla, lanza una excepción y Unity sale con código 1.
     /// </summary>
     public static class CroacBuild
@@ -42,7 +43,7 @@ namespace Croac.EditorTools
                     opciones.target = BuildTarget.Android;
                     opciones.locationPathName = Path.Combine(salida, aab ? "Croac.aab" : "Croac.apk");
                     EditorUserBuildSettings.buildAppBundle = aab;
-                    Firmar();
+                    Firmar(aab);
                     break;
                 case "ios":
                 case "ios-sim":
@@ -85,10 +86,15 @@ namespace Croac.EditorTools
             return args[i + 1];
         }
 
-        static void Firmar()
+        /// <summary>Firma con el keystore de las variables de entorno. Un AAB sin keystore es un error: no se firma con la clave de depuración.</summary>
+        static void Firmar(bool obligatoria)
         {
             string keystore = Environment.GetEnvironmentVariable("CROAC_KEYSTORE");
-            if (string.IsNullOrEmpty(keystore)) return;
+            if (string.IsNullOrEmpty(keystore))
+            {
+                if (obligatoria) throw new ArgumentException("-croacAab necesita CROAC_KEYSTORE (y CROAC_KEYSTORE_PASS, CROAC_KEY_ALIAS, CROAC_KEY_PASS)");
+                return;
+            }
             PlayerSettings.Android.useCustomKeystore = true;
             PlayerSettings.Android.keystoreName = keystore;
             PlayerSettings.Android.keystorePass = Environment.GetEnvironmentVariable("CROAC_KEYSTORE_PASS");
