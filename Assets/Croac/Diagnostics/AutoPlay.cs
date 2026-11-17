@@ -55,18 +55,19 @@ namespace Croac.Diagnostics
 
     /// <summary>
     /// Juega solo a «Croac» para que dos medidas de la misma rama sean comparables. Se activa si el juego arranca
-    /// con <c>-croacAutoplay &lt;semilla&gt;</c>: desde el menú entra en el primer nivel y cambia al siguiente cada
-    /// <see cref="SaltosPorNivel"/> saltos, en bucle. Fija <c>Time.captureFramerate</c> a 60: el tiempo del juego
+    /// con <c>-croacAutoplay &lt;semilla&gt;</c>: desde el menú carga la escena de juego (<c>Juego</c>, o la que diga
+    /// <c>-croacEscena &lt;nombre&gt;</c>) con el primer nivel y cambia al siguiente cada <see cref="SaltosPorNivel"/>
+    /// saltos, en bucle. En una escena sin <see cref="IJugador"/> no hace nada más: así se mide, por ejemplo, el menú. Fija <c>Time.captureFramerate</c> a 60: el tiempo del juego
     /// avanza 1/60 s por frame, vaya el Mac rápido o lento, y la partida pasa por los mismos estados en cada medida.
     /// Solo necesita del juego <see cref="IJugador"/>, los <see cref="Nivel"/> que carga el menú (ordenados por
-    /// semilla), <see cref="Seleccion"/> y que la escena de juego se llame <c>Juego</c>.
+    /// semilla) y <see cref="Seleccion"/>.
     /// </summary>
     public class AutoPlay : MonoBehaviour
     {
         public const int SaltosPorNivel = 3;
-        const string EscenaJuego = "Juego";
 
         Bot bot;
+        string escena;
         Nivel[] niveles;
         int indiceNivel;
         IJugador jugador;
@@ -74,11 +75,14 @@ namespace Croac.Diagnostics
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Activar()
         {
-            string semilla = FrameBudgetRecorder.Argumento(Environment.GetCommandLineArgs(), "-croacAutoplay");
+            var args = Environment.GetCommandLineArgs();
+            string semilla = FrameBudgetRecorder.Argumento(args, "-croacAutoplay");
             if (semilla == null) return;
             var go = new GameObject(nameof(AutoPlay));
             DontDestroyOnLoad(go);
-            go.AddComponent<AutoPlay>().bot = new Bot(int.Parse(semilla), SaltosPorNivel);
+            var autoPlay = go.AddComponent<AutoPlay>();
+            autoPlay.bot = new Bot(int.Parse(semilla), SaltosPorNivel);
+            autoPlay.escena = FrameBudgetRecorder.Argumento(args, "-croacEscena") ?? "Juego";
         }
 
         void Start()
@@ -89,7 +93,7 @@ namespace Croac.Diagnostics
             Array.Sort(niveles, (a, b) => a.semilla.CompareTo(b.semilla));
             SceneManager.sceneLoaded += AlCargarEscena;
             Seleccion.Nivel = niveles[0];
-            SceneManager.LoadScene(EscenaJuego);
+            SceneManager.LoadScene(escena);
         }
 
         void OnDestroy() => SceneManager.sceneLoaded -= AlCargarEscena;
