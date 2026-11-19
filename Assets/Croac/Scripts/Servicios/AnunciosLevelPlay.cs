@@ -11,22 +11,18 @@ namespace Croac
     /// </summary>
     public class AnunciosLevelPlay : IAds
     {
-        readonly LevelPlayRewardedAd anuncio;
+        readonly string bloque;
+        LevelPlayRewardedAd anuncio;
 
         public event Action Mostrado;
         public event Action Recompensa;
         public event Action Cerrado;
 
-        public bool Listo => anuncio.IsAdReady();
+        public bool Listo => anuncio != null && anuncio.IsAdReady();
 
         public AnunciosLevelPlay(string claveApp, string bloque)
         {
-            anuncio = new LevelPlayRewardedAd(bloque);
-            anuncio.OnAdLoadFailed += error => Debug.LogWarning($"AnunciosLevelPlay: no ha cargado: {error.ErrorMessage}");
-            anuncio.OnAdDisplayed += _ => Mostrado?.Invoke();
-            anuncio.OnAdDisplayFailed += AlNoMostrarse;
-            anuncio.OnAdRewarded += (_, _) => Recompensa?.Invoke();
-            anuncio.OnAdClosed += AlCerrarse;
+            this.bloque = bloque;
             LevelPlay.OnInitSuccess += AlIniciar;
             LevelPlay.OnInitFailed += AlFallarInicio;
             LevelPlay.Init(claveApp);
@@ -34,11 +30,20 @@ namespace Croac
 
         public void Mostrar() => anuncio.ShowAd();
 
-        /// <summary>Los eventos de LevelPlay son estáticos: sin recarga de dominio, se quitan para no oír a la sesión siguiente.</summary>
+        /// <summary>
+        /// El anuncio se crea con LevelPlay ya iniciado, como pide su documentación. Los eventos de inicio son estáticos:
+        /// sin recarga de dominio, se quitan para no oír a la sesión siguiente.
+        /// </summary>
         void AlIniciar(LevelPlayConfiguration _)
         {
             LevelPlay.OnInitSuccess -= AlIniciar;
             LevelPlay.OnInitFailed -= AlFallarInicio;
+            anuncio = new LevelPlayRewardedAd(bloque);
+            anuncio.OnAdLoadFailed += error => Debug.LogWarning($"AnunciosLevelPlay: no ha cargado: {error.ErrorMessage}");
+            anuncio.OnAdDisplayed += _ => Mostrado?.Invoke();
+            anuncio.OnAdDisplayFailed += AlNoMostrarse;
+            anuncio.OnAdRewarded += (_, _) => Recompensa?.Invoke();
+            anuncio.OnAdClosed += AlCerrarse;
             anuncio.LoadAd();
         }
 
