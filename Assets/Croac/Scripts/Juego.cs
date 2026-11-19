@@ -23,6 +23,8 @@ namespace Croac
         [SerializeField] TMP_Text textoFin;
         [SerializeField] GameObject panelPausa;
         [SerializeField] CanalHaptico haptica;
+        [SerializeField] GameObject botonesRevivir;
+        [SerializeField] TMP_Text textoRevivir;
         [SerializeField] AudioSource altavoz;
         [SerializeField] AudioClip sonidoSalto;
         [SerializeField] AudioClip sonidoMosca;
@@ -32,6 +34,8 @@ namespace Croac
         [SerializeField] float anchoCarril = 1.6f;
         [SerializeField] int filasPorDelante = 8;
         [SerializeField] int filasPorDetras = 2;
+
+        public const int PrecioRevivir = 20;
 
         readonly List<Nenufar> filas = new();
         ObjectPool<Nenufar> charca;
@@ -46,6 +50,8 @@ namespace Croac
         int primeraFila;
         int filaActual;
         int filasDelSalto = 1;
+        IAds anuncios;
+        bool revivida;
 
         public int Puntos => puntuacion.Puntos;
 
@@ -83,6 +89,10 @@ namespace Croac
             gestos = new Gestos(Gestos.UmbralEnPixeles(Screen.dpi));
             rana.Aterrizo += AlAterrizar;
             Application.lowMemory += cicloVida.AlFaltarMemoria;
+            anuncios = Servicios.Anuncios;
+            anuncios.Mostrado += AlEmpezarAnuncio;
+            anuncios.Recompensa += Revivir;
+            anuncios.Cerrado += AlAcabarAnuncio;
         }
 
         void OnDisable()
@@ -90,9 +100,16 @@ namespace Croac
             gestos.Dispose();
             rana.Aterrizo -= AlAterrizar;
             Application.lowMemory -= cicloVida.AlFaltarMemoria;
+            anuncios.Mostrado -= AlEmpezarAnuncio;
+            anuncios.Recompensa -= Revivir;
+            anuncios.Cerrado -= AlAcabarAnuncio;
         }
 
-        void OnDestroy() => Time.timeScale = 1f;
+        void OnDestroy()
+        {
+            Time.timeScale = 1f;
+            AudioListener.pause = false;
+        }
 
         void OnApplicationPause(bool pausada) => cicloVida.AlPausar(pausada);
 
@@ -174,7 +191,56 @@ namespace Croac
             altavoz.PlayOneShot(sonidoSalto);
         }
 
-        public void Reiniciar() => SceneManager.LoadScene(gameObject.scene.buildIndex);
+        /// <summary>Repetir es cuando la partida acaba de verdad: con un revivir de por medio, sigue siendo una sola.</summary>
+        public void Reiniciar()
+        {
+            if (Terminada) Registrar();
+            SceneManager.LoadScene(gameObject.scene.buildIndex);
+        }
+
+        /// <summary>Lo llama el botón «Revivir» del panel de fin. Con «quitar anuncios» comprado, revive sin anuncio.</summary>
+        public void RevivirConAnuncio()
+        {
+            if (!MomentoAnuncio.Permitido(Terminada, rana.EnElAire, revivida)) return;
+            if (Guardado.Cargar().sinAnuncios) Revivir();
+            else if (anuncios.Listo) anuncios.Mostrar();
+        }
+
+        /// <summary>Lo llama el botón «Revivir · 20 moscas»: las paga de la bolsa, si llegan.</summary>
+        public void RevivirConMoscas()
+        {
+            if (!Terminada || revivida) return;
+            var guardado = Guardado.Cargar();
+            if (guardado.moscas < PrecioRevivir) return;
+            guardado.moscas -= PrecioRevivir;
+            guardado.Guardar();
+            Revivir();
+        }
+
+        /// <summary>Mientras el anuncio ocupa la pantalla, el juego y el audio se paran.</summary>
+        void AlEmpezarAnuncio()
+        {
+            Time.timeScale = 0f;
+            AudioListener.pause = true;
+        }
+
+        void AlAcabarAnuncio()
+        {
+            Time.timeScale = Pausada ? 0f : 1f;
+            AudioListener.pause = false;
+        }
+
+        /// <summary>La rana vuelve sobre el nenúfar al que saltaba y la partida sigue, con sus puntos.</summary>
+        void Revivir()
+        {
+            revivida = true;
+            Terminada = false;
+            panelFin.SetActive(false);
+            var nenufar = Fila(filaActual);
+            rana.Revivir(nenufar.transform.position);
+            rana.transform.SetParent(nenufar.transform, true);
+            RellenarFilas();
+        }
 
         /// <summary>Lo llama el botón de pausa del HUD: para la partida o la reanuda.</summary>
         public void AlternarPausa()
@@ -216,10 +282,20 @@ namespace Croac
             rana.Hundirse();
             haptica.Emitir(Haptico.Fuerte);
             var guardado = Guardado.Cargar();
-            bool record = guardado.Registrar(puntuacion);
-            guardado.Guardar();
+            bool record = puntuacion.Puntos > guardado.record;
+            Guardado.GuardarRecord(puntuacion.Puntos, Guardado.Ruta);
             textoFin.SetText(record ? "¡Plof!\n¡Récord nuevo: {0}!\n\nToca dos veces para repetir" : "¡Plof!\n{0} puntos\n\nToca dos veces para repetir", puntuacion.Puntos);
+            textoRevivir.SetText(guardado.sinAnuncios ? "Revivir" : "Revivir con un anuncio");
+            botonesRevivir.SetActive(!revivida);
             panelFin.SetActive(true);
+        }
+
+        /// <summary>Cuenta la partida en el guardado: una vez, al repetir.</summary>
+        void Registrar()
+        {
+            var guardado = Guardado.Cargar();
+            guardado.Registrar(puntuacion);
+            guardado.Guardar();
         }
 
         /// <summary>

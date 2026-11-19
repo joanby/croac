@@ -35,6 +35,14 @@ namespace Croac
             EnElAire = true;
         }
 
+        /// <summary>Vuelve a la superficie en <paramref name="posicion"/>, entera: es lo que da el anuncio de revivir.</summary>
+        public void Revivir(Vector3 posicion)
+        {
+            hundiendose = false;
+            transform.position = posicion;
+            transform.localScale = Vector3.one;
+        }
+
         public void Hundirse()
         {
             tiempo = 0f;
