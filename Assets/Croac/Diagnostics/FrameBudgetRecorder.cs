@@ -73,13 +73,13 @@ namespace Croac.Diagnostics
     }
 
     /// <summary>
-    /// Los <see cref="ProfilerRecorder"/> de cada columna. Leerlos no asigna memoria: son structs que guardan el
-    /// valor del último frame terminado. Nombres y categorías comprobados en el player de 6000.6.8f1: los tiempos
+    /// Los <see cref="ProfilerRecorder"/> de cada columna. Leerlos no crea objetos gestionados: son structs que guardan
+    /// el valor del último frame terminado (y la columna <c>gc_alloc_bytes</c> de <c>m02-finished</c> lo confirma: 0). Nombres y categorías comprobados en el player de 6000.6.8f1: los tiempos
     /// de CPU y GPU son los del FrameTimingManager (Render), las asignaciones y la memoria los de Memory, las
     /// llamadas de dibujo y los SetPass los de Render, y la UI los marcadores <c>Layout</c> (UI Layout), <c>Render</c> y
     /// <c>Canvas.BuildBatch</c> (UI Render). <c>canvas_rebuilds</c> es cuántas veces se rehízo el lote de un
-    /// Canvas en el frame. No hay columna <c>batches</c>: 6000.6 ya no tiene el contador «Batches Count» de Render
-    /// (en Statistics se llama Draw Calls) y el único con ese nombre es el de UI Toolkit, que aquí siempre vale 0.
+    /// Canvas en el frame. No hay columna <c>batches</c>: entre los contadores del player de 6000.6.8f1 que comprobamos,
+    /// el único llamado «Batches Count» es el de UI Toolkit, que aquí siempre vale 0.
     /// </summary>
     public class ContadoresFrame : IDisposable
     {
