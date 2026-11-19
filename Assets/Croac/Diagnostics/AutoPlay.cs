@@ -75,7 +75,7 @@ namespace Croac.Diagnostics
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Activar()
         {
-            var args = Environment.GetCommandLineArgs();
+            var args = LineaDeComandos.Leer();
             string semilla = FrameBudgetRecorder.Argumento(args, "-croacAutoplay");
             if (semilla == null) return;
             var go = new GameObject(nameof(AutoPlay));
