@@ -27,6 +27,8 @@ namespace Croac
         [SerializeField] AudioClip sonidoMosca;
         [Tooltip("Distancia horizontal máxima entre la rana y el centro del nenúfar para aterrizar.")]
         [SerializeField] float radioAterrizaje = 0.65f;
+        [Tooltip("Distancia horizontal que recorre la rana al cambiar de carril con un deslizamiento.")]
+        [SerializeField] float anchoCarril = 1.6f;
         [SerializeField] int filasPorDelante = 8;
         [SerializeField] int filasPorDetras = 2;
 
@@ -39,6 +41,7 @@ namespace Croac
         InputAction accionSaltar;
         InputAction accionSaltoLargo;
         InputAction accionRepetir;
+        Gestos gestos;
         int primeraFila;
         int filaActual;
         int filasDelSalto = 1;
@@ -76,12 +79,14 @@ namespace Croac
             accionSaltar = InputSystem.actions.FindAction("Juego/Saltar", true);
             accionSaltoLargo = InputSystem.actions.FindAction("Juego/SaltoLargo", true);
             accionRepetir = InputSystem.actions.FindAction("Juego/Repetir", true);
+            gestos = new Gestos(Gestos.UmbralEnPixeles(Screen.dpi));
             rana.Aterrizo += AlAterrizar;
             Application.lowMemory += cicloVida.AlFaltarMemoria;
         }
 
         void OnDisable()
         {
+            gestos.Dispose();
             rana.Aterrizo -= AlAterrizar;
             Application.lowMemory -= cicloVida.AlFaltarMemoria;
         }
@@ -128,9 +133,15 @@ namespace Croac
             if (accionRepetir.WasPerformedThisFrame()) Reiniciar();
         }
 
+        /// <summary>
+        /// Un deslizamiento gana al toque que lo termina (Tap no mira cuánto se ha movido el dedo), y un dedo que se
+        /// mueve no cuenta como mantener.
+        /// </summary>
         void LeerPartida()
         {
-            if (accionSaltoLargo.WasPerformedThisFrame()) Saltar(2);
+            gestos.Actualizar();
+            if (gestos.Deslizamiento != 0) SaltarDeLado(gestos.Deslizamiento);
+            else if (accionSaltoLargo.WasPerformedThisFrame() && !gestos.Moviendose) Saltar(2);
             else if (accionSaltar.WasPerformedThisFrame()) Saltar(1);
         }
 
@@ -150,6 +161,15 @@ namespace Croac
             if (!PuedeSaltar) return;
             filasDelSalto = filas;
             rana.Saltar(Altura(filaActual + filas));
+            altavoz.PlayOneShot(sonidoSalto);
+        }
+
+        /// <summary>Salta a la fila siguiente cambiando de carril: <paramref name="lado"/> es -1 (izquierda) o 1 (derecha).</summary>
+        public void SaltarDeLado(int lado)
+        {
+            if (!PuedeSaltar) return;
+            filasDelSalto = 1;
+            rana.Saltar(Altura(filaActual + 1), lado * anchoCarril);
             altavoz.PlayOneShot(sonidoSalto);
         }
 
