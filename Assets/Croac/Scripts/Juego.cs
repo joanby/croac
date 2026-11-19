@@ -20,6 +20,7 @@ namespace Croac
         [SerializeField] LevelLoader cargador;
         [SerializeField] GameObject panelFin;
         [SerializeField] TMP_Text textoFin;
+        [SerializeField] GameObject panelPausa;
         [SerializeField] AudioSource altavoz;
         [SerializeField] AudioClip sonidoSalto;
         [SerializeField] AudioClip sonidoMosca;
@@ -52,7 +53,8 @@ namespace Croac
         }
 
         public bool Terminada { get; private set; }
-        public bool PuedeSaltar => !Terminada && !rana.EnElAire;
+        public bool Pausada { get; private set; }
+        public bool PuedeSaltar => !Terminada && !Pausada && !rana.EnElAire;
         public float DesvioSiguiente => Fila(filaActual + 1).transform.position.x - rana.transform.position.x;
 
         void Awake()
@@ -79,6 +81,8 @@ namespace Croac
             rana.Aterrizo -= AlAterrizar;
             Application.lowMemory -= cicloVida.AlFaltarMemoria;
         }
+
+        void OnDestroy() => Time.timeScale = 1f;
 
         void OnApplicationPause(bool pausada) => cicloVida.AlPausar(pausada);
 
@@ -112,6 +116,14 @@ namespace Croac
         }
 
         public void Reiniciar() => SceneManager.LoadScene(gameObject.scene.buildIndex);
+
+        /// <summary>Lo llama el botón de pausa del HUD: para la partida o la reanuda.</summary>
+        public void AlternarPausa()
+        {
+            Pausada = !Pausada;
+            Time.timeScale = Pausada ? 0f : 1f;
+            panelPausa.SetActive(Pausada);
+        }
 
         void AlTocar(InputAction.CallbackContext _)
         {
