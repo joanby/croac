@@ -3,6 +3,8 @@
     "rootNamespace": "Croac.Tests",
     "references": [
         "Croac",
+        "Unity.InputSystem",
+        "Unity.InputSystem.TestFramework",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

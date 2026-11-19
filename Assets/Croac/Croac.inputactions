@@ -11,7 +11,25 @@
                     "id": "5b1b7f4e-2d0a-4a51-9f37-1c0de0a0c002",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Tap",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SaltoLargo",
+                    "type": "Button",
+                    "id": "5b1b7f4e-2d0a-4a51-9f37-1c0de0a0c004",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Repetir",
+                    "type": "Button",
+                    "id": "5b1b7f4e-2d0a-4a51-9f37-1c0de0a0c006",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "MultiTap",
                     "initialStateCheck": false
                 }
             ],
@@ -24,6 +42,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Saltar",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5b1b7f4e-2d0a-4a51-9f37-1c0de0a0c005",
+                    "path": "<Pointer>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SaltoLargo",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5b1b7f4e-2d0a-4a51-9f37-1c0de0a0c007",
+                    "path": "<Pointer>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Repetir",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

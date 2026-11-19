@@ -37,8 +37,11 @@ namespace Croac
         Nivel nivel;
         GeneradorNenufares generador;
         InputAction accionSaltar;
+        InputAction accionSaltoLargo;
+        InputAction accionRepetir;
         int primeraFila;
         int filaActual;
+        int filasDelSalto = 1;
 
         public int Puntos => puntuacion.Puntos;
 
@@ -71,6 +74,8 @@ namespace Croac
         void OnEnable()
         {
             accionSaltar = InputSystem.actions.FindAction("Juego/Saltar", true);
+            accionSaltoLargo = InputSystem.actions.FindAction("Juego/SaltoLargo", true);
+            accionRepetir = InputSystem.actions.FindAction("Juego/Repetir", true);
             rana.Aterrizo += AlAterrizar;
             Application.lowMemory += cicloVida.AlFaltarMemoria;
         }
@@ -120,12 +125,13 @@ namespace Croac
 
         void LeerFin()
         {
-            if (accionSaltar.WasPerformedThisFrame()) Reiniciar();
+            if (accionRepetir.WasPerformedThisFrame()) Reiniciar();
         }
 
         void LeerPartida()
         {
-            if (accionSaltar.WasPerformedThisFrame()) Saltar();
+            if (accionSaltoLargo.WasPerformedThisFrame()) Saltar(2);
+            else if (accionSaltar.WasPerformedThisFrame()) Saltar(1);
         }
 
         void SeguirALaRana()
@@ -136,10 +142,14 @@ namespace Croac
             camara.transform.position = posicion;
         }
 
-        public void Saltar()
+        public void Saltar() => Saltar(1);
+
+        /// <summary>Salta <paramref name="filas"/> filas hacia delante: una con un toque y dos al mantener el dedo.</summary>
+        public void Saltar(int filas)
         {
             if (!PuedeSaltar) return;
-            rana.Saltar(Altura(filaActual + 1));
+            filasDelSalto = filas;
+            rana.Saltar(Altura(filaActual + filas));
             altavoz.PlayOneShot(sonidoSalto);
         }
 
@@ -155,7 +165,7 @@ namespace Croac
 
         void AlAterrizar()
         {
-            filaActual++;
+            filaActual += filasDelSalto;
             var nenufar = Fila(filaActual);
             if (Mathf.Abs(nenufar.transform.position.x - rana.transform.position.x) > radioAterrizaje)
             {
@@ -173,14 +183,19 @@ namespace Croac
             RellenarFilas();
         }
 
+        /// <summary>
+        /// La rana cae al agua. La acción Repetir se reinicia para que el doble toque se cuente desde aquí: si no, el
+        /// toque que la hizo saltar al agua podría ser el primero de los dos y la partida se repetiría sin querer.
+        /// </summary>
         void Terminar()
         {
             Terminada = true;
+            accionRepetir.Reset();
             rana.Hundirse();
             var guardado = Guardado.Cargar();
             bool record = guardado.Registrar(puntuacion);
             guardado.Guardar();
-            textoFin.SetText(record ? "¡Plof!\n¡Récord nuevo: {0}!\n\nToca para repetir" : "¡Plof!\n{0} puntos\n\nToca para repetir", puntuacion.Puntos);
+            textoFin.SetText(record ? "¡Plof!\n¡Récord nuevo: {0}!\n\nToca dos veces para repetir" : "¡Plof!\n{0} puntos\n\nToca dos veces para repetir", puntuacion.Puntos);
             panelFin.SetActive(true);
         }
 
