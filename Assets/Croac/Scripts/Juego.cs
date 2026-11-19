@@ -91,7 +91,7 @@ namespace Croac
             Application.lowMemory += cicloVida.AlFaltarMemoria;
             anuncios = Servicios.Anuncios;
             anuncios.Mostrado += AlEmpezarAnuncio;
-            anuncios.Recompensa += Revivir;
+            anuncios.Recompensa += AlRecompensar;
             anuncios.Cerrado += AlAcabarAnuncio;
         }
 
@@ -101,7 +101,7 @@ namespace Croac
             rana.Aterrizo -= AlAterrizar;
             Application.lowMemory -= cicloVida.AlFaltarMemoria;
             anuncios.Mostrado -= AlEmpezarAnuncio;
-            anuncios.Recompensa -= Revivir;
+            anuncios.Recompensa -= AlRecompensar;
             anuncios.Cerrado -= AlAcabarAnuncio;
         }
 
@@ -124,6 +124,7 @@ namespace Croac
             RellenarFilas();
             rana.transform.position = Fila(0).transform.position;
             rana.transform.SetParent(Fila(0).transform, true);
+            Servicios.Analitica.Registrar(new Evento { evento = "level_start", nivel = nivel.name });
             await cargador.Cargar(nivel);
         }
 
@@ -230,6 +231,12 @@ namespace Croac
             AudioListener.pause = false;
         }
 
+        void AlRecompensar()
+        {
+            Servicios.Analitica.Registrar(new Evento { evento = "ad_reward", nivel = nivel.name, puntos = puntuacion.Puntos });
+            Revivir();
+        }
+
         /// <summary>La rana vuelve sobre el nenúfar al que saltaba y la partida sigue, con sus puntos.</summary>
         void Revivir()
         {
@@ -296,6 +303,7 @@ namespace Croac
             var guardado = Guardado.Cargar();
             guardado.Registrar(puntuacion);
             guardado.Guardar();
+            Servicios.Analitica.Registrar(new Evento { evento = "level_end", nivel = nivel.name, puntos = puntuacion.Puntos });
         }
 
         /// <summary>

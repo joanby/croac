@@ -15,6 +15,8 @@ namespace Croac
         public int moscas;
         public bool sinAnuncios;
         public List<string> pedidos = new();
+        public Consentimiento consentimiento;
+        public string usuario;
 
         public static string Ruta => Path.Combine(Application.persistentDataPath, "guardado.json");
 

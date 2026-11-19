@@ -19,8 +19,10 @@ namespace Croac
 
         public bool Listo => anuncio.IsAdReady();
 
-        public AnunciosLevelPlay(string claveApp, string bloque)
+        /// <param name="consentimiento">Si el jugador acepta anuncios personalizados: LevelPlay lo necesita antes de iniciarse.</param>
+        public AnunciosLevelPlay(string claveApp, string bloque, bool consentimiento)
         {
+            LevelPlayPrivacySettings.SetGDPRConsent(consentimiento);
             anuncio = new LevelPlayRewardedAd(bloque);
             anuncio.OnAdLoadFailed += error => Debug.LogWarning($"AnunciosLevelPlay: no ha cargado: {error.ErrorMessage}");
             anuncio.OnAdDisplayed += _ => Mostrado?.Invoke();

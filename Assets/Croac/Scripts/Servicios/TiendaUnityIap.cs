@@ -44,6 +44,8 @@ namespace Croac
 
         public string Precio(string producto) => iap.GetProductById(producto, tienda)?.metadata.localizedPriceString ?? "—";
 
+        public float Importe(string producto) => (float)(iap.GetProductById(producto, tienda)?.metadata.localizedPrice ?? 0m);
+
         public void Comprar(string producto) => iap.PurchaseProduct(iap.GetProductById(producto, tienda));
 
         public void Restaurar() => iap.RestoreTransactions((_, bien, error) =>

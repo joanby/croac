@@ -25,6 +25,9 @@ namespace Croac
         /// <summary>El precio con su moneda, como lo da la tienda del sistema.</summary>
         string Precio(string producto);
 
+        /// <summary>El precio como número, en la moneda de la tienda: lo que se apunta en la analítica.</summary>
+        float Importe(string producto);
+
         void Comprar(string producto);
 
         /// <summary>Vuelve a entregar los no consumibles ya comprados (obligatorio en iOS: un botón «Restaurar»).</summary>
