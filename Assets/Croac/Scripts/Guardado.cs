@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -11,6 +12,9 @@ namespace Croac
         public int record;
         public int moscasTotales;
         public int partidas;
+        public int moscas;
+        public bool sinAnuncios;
+        public List<string> pedidos = new();
 
         public static string Ruta => Path.Combine(Application.persistentDataPath, "guardado.json");
 
@@ -19,6 +23,7 @@ namespace Croac
         {
             partidas++;
             moscasTotales += puntuacion.Moscas;
+            moscas += puntuacion.Moscas;
             return ActualizarRecord(puntuacion.Puntos);
         }
 

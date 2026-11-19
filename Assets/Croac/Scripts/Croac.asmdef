@@ -6,7 +6,8 @@
         "Unity.Addressables",
         "Unity.ResourceManager",
         "Unity.TextMeshPro",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "Unity.Purchasing"
     ],
     "autoReferenced": true
 }
