@@ -4364,6 +4364,7 @@ MonoBehaviour:
   panelFin: {fileID: 1990905015}
   textoFin: {fileID: 1872182890}
   panelPausa: {fileID: 408782396}
+  haptica: {fileID: 11400000, guid: 7f5c37bc0fd39439386190e31d6d1bc4, type: 2}
   altavoz: {fileID: 642041478}
   sonidoSalto: {fileID: 8300000, guid: c5289b5140eaf402ab22e3455bc6d517, type: 3}
   sonidoMosca: {fileID: 8300000, guid: c5a821232fa374cd3a247b12df6fb6ca, type: 3}
@@ -7757,6 +7758,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1115547419}
   m_CullTransparentMesh: 1
+--- !u!1 &1121551826
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1121551828}
+  - component: {fileID: 1121551827}
+  m_Layer: 0
+  m_Name: Vibrador
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1121551827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121551826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5116a7b6e8b64e83936b7b399cc42e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Croac::Croac.Vibrador
+  canal: {fileID: 11400000, guid: 7f5c37bc0fd39439386190e31d6d1bc4, type: 2}
+--- !u!4 &1121551828
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121551826}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1129239564
 GameObject:
   m_ObjectHideFlags: 0
@@ -14484,3 +14530,4 @@ SceneRoots:
   - {fileID: 642041480}
   - {fileID: 156040959}
   - {fileID: 743839644}
+  - {fileID: 1121551828}

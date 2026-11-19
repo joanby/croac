@@ -22,6 +22,7 @@ namespace Croac
         [SerializeField] GameObject panelFin;
         [SerializeField] TMP_Text textoFin;
         [SerializeField] GameObject panelPausa;
+        [SerializeField] CanalHaptico haptica;
         [SerializeField] AudioSource altavoz;
         [SerializeField] AudioClip sonidoSalto;
         [SerializeField] AudioClip sonidoMosca;
@@ -194,6 +195,7 @@ namespace Croac
             }
             rana.transform.SetParent(nenufar.transform, true);
             puntuacion.Salto();
+            haptica.Emitir(nenufar.TieneMosca ? Haptico.Medio : Haptico.Ligero);
             if (nenufar.TieneMosca)
             {
                 nenufar.ComerMosca();
@@ -212,6 +214,7 @@ namespace Croac
             Terminada = true;
             accionRepetir.Reset();
             rana.Hundirse();
+            haptica.Emitir(Haptico.Fuerte);
             var guardado = Guardado.Cargar();
             bool record = guardado.Registrar(puntuacion);
             guardado.Guardar();
