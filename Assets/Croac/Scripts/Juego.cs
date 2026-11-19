@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
@@ -70,14 +71,12 @@ namespace Croac
         void OnEnable()
         {
             accionSaltar = InputSystem.actions.FindAction("Juego/Saltar", true);
-            accionSaltar.performed += AlTocar;
             rana.Aterrizo += AlAterrizar;
             Application.lowMemory += cicloVida.AlFaltarMemoria;
         }
 
         void OnDisable()
         {
-            accionSaltar.performed -= AlTocar;
             rana.Aterrizo -= AlAterrizar;
             Application.lowMemory -= cicloVida.AlFaltarMemoria;
         }
@@ -102,6 +101,35 @@ namespace Croac
 
         void LateUpdate()
         {
+            Leer();
+            SeguirALaRana();
+        }
+
+        /// <summary>
+        /// Lee el toque una vez por frame, en <c>LateUpdate</c>: para entonces la UI ya ha procesado el suyo y sabe si el
+        /// dedo está sobre un botón. Si lo está, el toque es del botón y la rana no salta.
+        /// </summary>
+        void Leer()
+        {
+            if (SobreLaInterfaz()) return;
+            if (Terminada) LeerFin();
+            else LeerPartida();
+        }
+
+        static bool SobreLaInterfaz() => EventSystem.current.IsPointerOverGameObject();
+
+        void LeerFin()
+        {
+            if (accionSaltar.WasPerformedThisFrame()) Reiniciar();
+        }
+
+        void LeerPartida()
+        {
+            if (accionSaltar.WasPerformedThisFrame()) Saltar();
+        }
+
+        void SeguirALaRana()
+        {
             var posicion = camara.transform.position;
             float objetivo = rana.transform.position.y + camara.orthographicSize * 0.5f;
             if (objetivo > posicion.y) posicion.y = Mathf.Lerp(posicion.y, objetivo, 1f - Mathf.Exp(-8f * Time.deltaTime));
@@ -123,12 +151,6 @@ namespace Croac
             Pausada = !Pausada;
             Time.timeScale = Pausada ? 0f : 1f;
             panelPausa.SetActive(Pausada);
-        }
-
-        void AlTocar(InputAction.CallbackContext _)
-        {
-            if (Terminada) Reiniciar();
-            else Saltar();
         }
 
         void AlAterrizar()
