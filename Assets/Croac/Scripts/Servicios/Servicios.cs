@@ -31,7 +31,10 @@ namespace Croac
 
         static bool Acepta => Guardado.Cargar().consentimiento == Consentimiento.Acepta;
 
-        /// <summary>Guarda la respuesta del jugador. La analítica se vuelve a crear con ella la próxima vez que se pida.</summary>
+        /// <summary>
+        /// Guarda la respuesta del jugador. La analítica se vuelve a crear con ella la próxima vez que se pida; LevelPlay
+        /// la recibe antes de <c>Init</c>, así que en los anuncios surte efecto al volver a abrir el juego.
+        /// </summary>
         public static void Consentir(Consentimiento respuesta)
         {
             var guardado = Guardado.Cargar();
