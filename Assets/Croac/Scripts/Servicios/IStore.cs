@@ -3,8 +3,8 @@ using System;
 namespace Croac
 {
     /// <summary>
-    /// Una tienda de compras dentro de la app, sin saber cuál: la de Unity IAP (<see cref="TiendaUnityIap"/>) o una
-    /// falsa para los tests (<see cref="TiendaFalsa"/>).
+    /// Una tienda de compras dentro de la app, sin saber cuál: hoy, la de Unity IAP (<see cref="TiendaUnityIap"/>);
+    /// mañana, otra que la sustituya sin tocar el juego.
     /// </summary>
     public interface IStore
     {
