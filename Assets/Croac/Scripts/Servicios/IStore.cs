@@ -27,7 +27,10 @@ namespace Croac
 
         void Comprar(string producto);
 
-        /// <summary>Vuelve a entregar los no consumibles ya comprados (obligatorio en iOS: un botón «Restaurar»).</summary>
+        /// <summary>
+        /// Vuelve a entregar los no consumibles ya comprados. Apple pide que haya una forma de restaurar (App Review
+        /// 3.1.1) y la documentación de Unity IAP lo da por obligatorio en Apple: un botón «Restaurar compras».
+        /// </summary>
         void Restaurar();
     }
 }
