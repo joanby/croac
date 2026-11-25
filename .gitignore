@@ -50,3 +50,6 @@ Builds/
 /Assets/AddressableAssetsData/OSX.meta
 /Assets/AddressableAssetsData/link.xml
 /Assets/AddressableAssetsData/link.xml.meta
+
+# Lo que se sube al servidor de contenido (Addressables remoto): se regenera en cada build
+/ServerData/
