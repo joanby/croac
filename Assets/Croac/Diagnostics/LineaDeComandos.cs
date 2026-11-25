@@ -9,7 +9,7 @@ namespace Croac.Diagnostics
     /// Los argumentos con los que se ha lanzado el juego. En iOS, <c>Environment.GetCommandLineArgs</c> devuelve un solo
     /// elemento vacío aunque el proceso los reciba (comprobado en el simulador con 6000.6.8f1 y
     /// <c>xcrun simctl launch … -croacAutoplay 7</c>), así que ahí se leen de <c>NSProcessInfo</c> con el plugin
-    /// <c>CroacArgumentos.mm</c>. Lo usa AutoPlay; FrameBudgetRecorder (lección 02.2) sigue con <c>Environment.GetCommandLineArgs</c>.
+    /// <c>CroacArgumentos.mm</c>. Lo usan AutoPlay y, desde la lección 02.7, FrameBudgetRecorder.
     /// </summary>
     public static class LineaDeComandos
     {
