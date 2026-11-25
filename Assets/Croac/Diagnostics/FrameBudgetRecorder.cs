@@ -186,7 +186,7 @@ namespace Croac.Diagnostics
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Activar()
         {
-            var args = Environment.GetCommandLineArgs();
+            var args = LineaDeComandos.Leer();
             string csv = Argumento(args, "-croacBudget");
             if (csv == null) return;
             var go = new GameObject(nameof(FrameBudgetRecorder));
