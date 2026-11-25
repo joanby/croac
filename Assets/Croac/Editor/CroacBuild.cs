@@ -37,7 +37,11 @@ namespace Croac.EditorTools
                 options = args.Contains("-croacDev") ? BuildOptions.Development : BuildOptions.None,
             };
             var sdkIos = PlayerSettings.iOS.sdkVersion;
-            var firma = (PlayerSettings.Android.useCustomKeystore, PlayerSettings.Android.keystoreName, PlayerSettings.Android.keyaliasName);
+            // El keystore se guarda tal como está escrito en ProjectSettings ({dedicated}: o {inproject}: y la ruta relativa):
+            // la propiedad keystoreName devuelve la ruta sin el prefijo y, al volver a asignarla, cambiaría de carpeta.
+            var ajustes = new SerializedObject(Unsupported.GetSerializedAssetInterfaceSingleton("PlayerSettings"));
+            var firma = (ajustes.FindProperty("androidUseCustomKeystore").boolValue, ajustes.FindProperty("AndroidKeystoreName").stringValue,
+                ajustes.FindProperty("AndroidKeyaliasName").stringValue);
             switch (destino)
             {
                 case "android":
@@ -69,7 +73,11 @@ namespace Croac.EditorTools
             finally
             {
                 PlayerSettings.iOS.sdkVersion = sdkIos;
-                (PlayerSettings.Android.useCustomKeystore, PlayerSettings.Android.keystoreName, PlayerSettings.Android.keyaliasName) = firma;
+                ajustes.Update();
+                ajustes.FindProperty("androidUseCustomKeystore").boolValue = firma.Item1;
+                ajustes.FindProperty("AndroidKeystoreName").stringValue = firma.Item2;
+                ajustes.FindProperty("AndroidKeyaliasName").stringValue = firma.Item3;
+                ajustes.ApplyModifiedPropertiesWithoutUndo();
             }
 
             var resumen = informe.summary;
