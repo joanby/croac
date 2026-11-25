@@ -17,8 +17,8 @@ namespace Croac.EditorTools
     /// <item><c>-croacInforme</c>: escribe <c>packed-assets.csv</c> (asset,tipo,formato,bytes) a partir del BuildReport.</item>
     /// </list>
     /// La firma de Android sale de las variables de entorno <c>CROAC_KEYSTORE</c>, <c>CROAC_KEYSTORE_PASS</c>,
-    /// <c>CROAC_KEY_ALIAS</c> y <c>CROAC_KEY_PASS</c>; sin ellas, un APK se firma con la clave de depuración
-    /// y un AAB falla.
+    /// <c>CROAC_KEY_ALIAS</c> y <c>CROAC_KEY_PASS</c>; sin ellas, un APK se firma como diga el proyecto (con su keystore,
+    /// cuyas contraseñas no se guardan, o con la clave de depuración) y un AAB falla. Al acabar, el keystore del proyecto vuelve a ser el que era.
     /// Si la build falla, lanza una excepción y Unity sale con código 1.
     /// </summary>
     public static class CroacBuild
@@ -37,6 +37,7 @@ namespace Croac.EditorTools
                 options = args.Contains("-croacDev") ? BuildOptions.Development : BuildOptions.None,
             };
             var sdkIos = PlayerSettings.iOS.sdkVersion;
+            var firma = (PlayerSettings.Android.useCustomKeystore, PlayerSettings.Android.keystoreName, PlayerSettings.Android.keyaliasName);
             switch (destino)
             {
                 case "android":
@@ -68,9 +69,7 @@ namespace Croac.EditorTools
             finally
             {
                 PlayerSettings.iOS.sdkVersion = sdkIos;
-                PlayerSettings.Android.useCustomKeystore = false;
-                PlayerSettings.Android.keystoreName = "";
-                PlayerSettings.Android.keyaliasName = "";
+                (PlayerSettings.Android.useCustomKeystore, PlayerSettings.Android.keystoreName, PlayerSettings.Android.keyaliasName) = firma;
             }
 
             var resumen = informe.summary;
