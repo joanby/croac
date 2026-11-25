@@ -1,9 +1,15 @@
 Copyright © 2026 Frogames Formación (Juan Gabriel Gomila). Todos los derechos reservados.
 
 «Croac» es el proyecto guía del curso «Juegos Móviles con Unity 6» de Frogames Formación.
-Puedes clonarlo o descargarlo y usarlo para seguir el curso. No puedes redistribuirlo,
-volver a publicarlo ni reutilizar su código, su arte o sus sonidos en otros proyectos sin
-permiso por escrito de Frogames Formación.
+Puedes clonarlo o descargarlo y usarlo para seguir el curso.
+
+El código que escribes siguiendo las guías del curso (los scripts de C# de Assets/Croac que
+las lecciones te enseñan a escribir) puedes usarlo, modificarlo y distribuirlo dentro de tus
+propios juegos y proyectos, también comerciales, sin pedir permiso.
+
+Todo lo demás, en particular el proyecto «Croac» como conjunto, su arte, sus sonidos, sus
+textos y la ficha de tienda, no puedes redistribuirlo, volver a publicarlo ni usarlo en otros
+proyectos sin permiso por escrito de Frogames Formación.
 
 Los ficheros de terceros conservan su propia licencia:
 - Assets/MobileDependencyResolver/ (External Dependency Manager for Unity, de Google, desde
