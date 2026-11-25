@@ -10,7 +10,7 @@ Solución de referencia del proyecto final del curso (06.2). «Croac» y Estudio
 | Ficha de tienda | `../Store/` (Lab 5) | Límites de Google Play y App Store Connect |
 
 ## La build de referencia
-AAB de release de esta rama, compilado con el perfil **Google Play** activo (Switch Profile, como en el Lab 5): sin Development Build, con Build App Bundle, Debug Symbols en Public (Symbol_Table) con salida App Bundle y firmado con la clave de subida del keystore `{dedicated}: croac.keystore` (alias `croac`). Pesa 67,47 MB y lleva 7 ficheros `.so.sym` en `BUNDLE-METADATA/com.android.tools.build.debugsymbols/arm64-v8a/`. Sin el perfil activo, con los ajustes de plataforma clásicos, el AAB sale sin símbolos y pesa unos 44 MB.
+AAB de release de esta rama, compilado con el perfil **Google Play** activo (Switch Profile, como en el Lab 5): sin Development Build, con Build App Bundle, Debug Symbols en «Public (Symbol_Table)» (así lo rotula la ventana en Unity 6000.6.8f1; la documentación lo llama Public) con salida App Bundle y firmado con la clave de subida del keystore `{dedicated}: croac.keystore` (alias `croac`). Pesa 67,47 MB y lleva 7 ficheros `.so.sym` en `BUNDLE-METADATA/com.android.tools.build.debugsymbols/arm64-v8a/`. Sin el perfil activo, con los ajustes de plataforma clásicos, el AAB sale sin símbolos y pesa unos 44 MB.
 
 Para repetirla:
 1. File › Build Profiles › Google Play › Switch Profile.
