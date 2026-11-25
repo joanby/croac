@@ -45,4 +45,4 @@ Etiquetas: `m02-02.2`, `m03-03.1` a `m03-03.5`, `m04-04.3`, `m04-04.4`, `m04-04.
 
 ## Licencia
 
-Todos los derechos reservados, ver [`LICENSE`](LICENSE). Puedes usarlo para seguir el curso, pero no redistribuirlo ni reutilizarlo en otros proyectos. Los ficheros de terceros (Mobile Dependency Resolver, la fuente LiberationSans y los paquetes de Unity) conservan su licencia, que también se cita en `LICENSE`.
+Todos los derechos reservados, ver [`LICENSE`](LICENSE), con una excepción: el código que escribes siguiendo las guías del curso puedes usarlo en tus propios juegos, también comerciales. El proyecto como conjunto, su arte y sus sonidos no se pueden redistribuir ni reutilizar. Los ficheros de terceros (Mobile Dependency Resolver, la fuente LiberationSans y los paquetes de Unity) conservan su licencia, que también se cita en `LICENSE`.
