@@ -2,8 +2,6 @@ using System;
 using System.IO;
 using NUnit.Framework;
 using Unity.Profiling;
-using UnityEngine.TestTools.Constraints;
-using Is = UnityEngine.TestTools.Constraints.Is;
 
 namespace Croac.Diagnostics.Tests
 {
@@ -16,10 +14,14 @@ namespace Croac.Diagnostics.Tests
             var bufer = new BuferPresupuesto(1000);
             bufer.Anotar(contadores.Muestrear(1));
 
-            Assert.That(() =>
-            {
-                for (int i = 0; i < 500; i++) bufer.Anotar(contadores.Muestrear(1));
-            }, Is.Not.AllocatingGCMemory());
+            // No Is.Not.AllocatingGCMemory(): a veces cuenta asignaciones de otros hilos del editor. Este recorder solo
+            // recoge las de este hilo. Count se lee antes del Assert, que encajona el 0 y asignaría con el recorder grabando.
+            using var asignaciones = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC.Alloc", 1,
+                ProfilerRecorderOptions.CollectOnlyOnCurrentThread);
+            for (int i = 0; i < 500; i++) bufer.Anotar(contadores.Muestrear(1));
+            var asignadas = asignaciones.Count;
+
+            Assert.AreEqual(0, asignadas, "asignaciones en el hilo del test");
         }
 
         [Test]
